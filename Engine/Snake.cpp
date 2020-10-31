@@ -27,7 +27,12 @@ void Snake::Grow()
 {
 	if (nSegments < nSegmentsMax)
 	{
-		segments[nSegments].InitBody();
+
+		bodyrb += bodyrbChangeAmmount;
+		bodyg -= bodyrbChangeAmmount;
+		if (bodyrb >= 250) { bodyrb = 250; bodyrbChangeAmmount = -bodyrbChangeAmmount; }
+		else if (bodyrb <= 0) { bodyrb = 0;	bodyrbChangeAmmount = -bodyrbChangeAmmount; }
+		segments[nSegments].InitBody({ bodyrb,bodyg,60 });
 		nSegments++;
 	}
 }
@@ -40,15 +45,26 @@ void Snake::Draw(Board& brd) const
 	}
 }
 
+bool Snake::IsInTileExceptEnd(const Location& target) const
+{
+	for (int i = 0; i < nSegments-1; i++)
+	{
+		if (segments[i].GetLocation() == target)
+			return true;
+	}
+	return false;
+}
+
 void Snake::Segment::InitHead(const Location& in_loc)
 {
 	loc = in_loc;
 	c = Snake::headColor;
 }
 
-void Snake::Segment::InitBody()
+void Snake::Segment::InitBody(Color bodyc)
 {
-	c = Snake::bodyColor;
+
+	c = bodyc;
 }
 
 void Snake::Segment::Follow(const Segment& next)
@@ -68,7 +84,7 @@ void Snake::Segment::Draw(Board& brd) const
 	brd.DrawCell(loc, c);
 }
 
-Location Snake::Segment::GetLocation() const
+const Location& Snake::Segment::GetLocation() const
 {
 	return loc;
 }
